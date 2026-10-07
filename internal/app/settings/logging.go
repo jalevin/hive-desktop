@@ -53,8 +53,7 @@ func NewLogger(path string, level zerolog.Level, extra ...io.Writer) (zerolog.Lo
 	if err != nil {
 		return build(append([]io.Writer{stderr}, extra...)...), func() {}, fmt.Errorf("open desktop log file: %w", err)
 	}
-	fileW := zerolog.ConsoleWriter{Out: f, NoColor: true, TimeFormat: time.RFC3339}
-	l := build(append([]io.Writer{fileW, stderr}, extra...)...)
+	l := build(append([]io.Writer{f, stderr}, extra...)...)
 	return l, func() { _ = f.Close() }, nil
 }
 
