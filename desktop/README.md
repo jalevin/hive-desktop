@@ -612,3 +612,15 @@ Recording UI spans to `perf.jsonl` is the `usePerf` hook, on in `dev` via
 ui-performance-spans-are-recorded-to-jsonl). The **ui-perf** agent skill carries
 the full loop: the naming rules and the jq recipes for percentiles, outliers,
 and grouping by attribute.
+
+## Diagnostics
+
+Window ▸ Diagnostics (macOS), or Open Diagnostics in the command palette,
+opens an independent window with Desktop/CLI log tails and job outcomes.
+Its evidence service and read_diagnostics MCP tool share bounded queries;
+agent execution is optional and uses the authenticated ephemeral PTY transport.
+Desktop writes JSON lines to desktop.log; the reader also accepts legacy text.
+CLI discovery honors HIVE_LOG_FILE, HIVE_DATA_DIR, and XDG_DATA_HOME in the
+resolved launch environment, then the Desktop instance's Hive data directory.
+A CLI invocation with its own --log-file cannot be discovered automatically.
+Incident exports live under the resolved reports directory with mode 0600.
