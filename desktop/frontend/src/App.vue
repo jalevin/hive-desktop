@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Open as openDiagnostics } from '../bindings/github.com/hay-kot/hive-desktop/internal/adapter/wailsui/diagnosticsservice'
 import { computed, defineAsyncComponent, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { Events, Window } from '@wailsio/runtime'
 import { useStorage } from '@vueuse/core'
@@ -1124,6 +1125,7 @@ const runMap: Record<string, () => void | Promise<void>> = {
   'view.go-inbox': () => setMode('hub'),
   'view.go-code': () => setMode('terminal'),
   'view.go-chats': () => setMode('agents'),
+  'diagnostics.open': () => void openDiagnostics(),
   'settings.open': () => requestOpenSettings('application'),
   'history.back': () => router.back(),
   'history.forward': () => router.forward(),
