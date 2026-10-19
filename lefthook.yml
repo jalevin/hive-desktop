@@ -78,7 +78,10 @@ pre-push:
   piped: true
   jobs:
     - name: check
-      run: mise run check
+      run: |
+        # Git fixtures must use their own repositories, not the hook caller.
+        unset $(git rev-parse --local-env-vars)
+        mise run check
 
     - name: frontend-test
       glob: "desktop/frontend/*"
