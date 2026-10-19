@@ -1,7 +1,7 @@
 import { ref, type Ref } from 'vue'
 import { ListSessions } from '../../bindings/github.com/hay-kot/hive-desktop/internal/adapter/wailsui/sessionservice'
 import { Scratch } from '../../bindings/github.com/hay-kot/hive-desktop/internal/adapter/wailsui/terminalservice'
-import { repoDisplayName } from '../lib/repositories'
+import { repoDisplayName, repoIdentity } from '../lib/repositories'
 
 /**
  * One row of the terminal sidebar. Slug is the tmux target an attach uses; a
@@ -35,20 +35,17 @@ export interface TerminalSessionGroup {
   kind: TerminalSectionKind
 }
 
-// The non-repo sections' keys. A repo group is keyed by its remote, which can
-// never collide with either of these.
 const CHATS_GROUP_KEY = 'chats'
 const SCRATCH_GROUP_KEY = 'scratch'
 
-// Mirrors the TUI's GroupSessionsByRepo: one group per remote, a "(no remote)"
-// group for sessions without one, groups and sessions alphabetical.
 export function groupTerminalSessions(rows: TerminalSessionRow[]): TerminalSessionGroup[] {
   const groups = new Map<string, TerminalSessionGroup>()
   for (const row of rows) {
-    let group = groups.get(row.repo)
+    const key = repoIdentity(row.repo)
+    let group = groups.get(key)
     if (!group) {
-      group = { key: row.repo, name: groupDisplayName(row.repo), sessions: [], kind: 'repo' }
-      groups.set(row.repo, group)
+      group = { key, name: groupDisplayName(row.repo), sessions: [], kind: 'repo' }
+      groups.set(key, group)
     }
     group.sessions.push(row)
   }

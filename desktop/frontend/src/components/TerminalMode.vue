@@ -2065,13 +2065,13 @@ onBeforeUnmount(() => {
                 <div class="group-trailing" @click.stop>
                   <span class="group-count font-mono text-[11.5px]" :class="groupAttached(group) ? 'text-accent' : 'text-text-4'">{{ group.sessions.length }}</span>
                   <button
-                    v-if="group.kind === 'repo' && group.key"
+                    v-if="group.kind === 'repo' && group.sessions[0]?.repo"
                     type="button"
                     class="row-action group-add"
                     :title="`New session in ${group.name}`"
                     :aria-label="`New session in ${group.name}`"
                     data-testid="terminal-repo-new-session"
-                    @click="openNewSession(group.key)"
+                    @click="openNewSession(group.sessions[0].repo)"
                   ><IconPlus class="size-3" /></button>
                 </div>
                 <component :is="groupExpanded(group) ? IconChevronDown : IconChevronRight" class="size-3 shrink-0 text-text-4" />
@@ -2161,7 +2161,7 @@ onBeforeUnmount(() => {
                         :data-slug="row.slug"
                         :data-tree-key="`s:${row.id}`"
                         :data-attached="row.slug === activeSlug"
-                        :title="row.slug"
+                        :title="row.repo ? `${row.slug}\n${row.repo}` : row.slug"
                         @click="selectSessionRow(row)"
                         @keydown.enter.self.prevent="enterSessionRow(row)"
                         @keydown.space.self.prevent="enterSessionRow(row)"
