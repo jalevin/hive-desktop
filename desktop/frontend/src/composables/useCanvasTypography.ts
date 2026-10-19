@@ -89,6 +89,16 @@ export function setCanvasFontSize(next: CanvasFontSize): void {
   persist(() => PersistCanvasFontSize(next))
 }
 
+export function stepCanvasFontSize(direction: 1 | -1): void {
+  const index = canvasFontSizes.indexOf(currentFontSize.value)
+  const next = canvasFontSizes[index + direction]
+  if (next) setCanvasFontSize(next)
+}
+
+export function resetCanvasFontSize(): void {
+  setCanvasFontSize(defaultCanvasFontSize)
+}
+
 export function setCanvasLineSpacing(next: CanvasLineSpacing): void {
   lineSpacingVersion++
   currentLineSpacing.value = next

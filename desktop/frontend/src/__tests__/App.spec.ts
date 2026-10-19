@@ -14,6 +14,7 @@ import { resetPopupTerminalForTests, usePopupTerminal } from '../composables/use
 import { resetLaunchersForTests } from '../composables/useLaunchers'
 import { formatCombo, SEQUENCE_TIMEOUT_MS, useKeybindings } from '../composables/useKeybindings'
 import { resetTerminalAvailabilityForTests } from '../composables/useTerminalAvailability'
+import { resetCanvasTypographyForTests, useCanvasTypography } from '../composables/useCanvasTypography'
 import { defaultTerminalFontSizePx, resetTerminalFontForTests, useTerminalFont } from '../composables/useTerminalFont'
 import { resetTerminalSessionsForTests, useTerminalSessions } from '../composables/useTerminalSessions'
 import { resetAttachedTerminalWindowsForTests, setAttachedTerminalWindows } from '../composables/useAttachedTerminalWindows'
@@ -189,6 +190,7 @@ vi.mock('../../bindings/github.com/hay-kot/hive-desktop/internal/adapter/wailsui
   Fonts: vi.fn().mockResolvedValue({ all: [], monospace: [] }),
   SetTheme: vi.fn(),
   SetTerminalFontSize: vi.fn(),
+  SetCanvasFontSize: vi.fn(),
   SetTerminalFontFamily: vi.fn(),
   SetTerminalFontWeights: vi.fn(),
   SetTerminalShowWindows: vi.fn(),
@@ -375,6 +377,7 @@ describe('App', () => {
     requestedEditorFilter.value = null
     resetTerminalAvailabilityForTests()
     resetTerminalFontForTests()
+    resetCanvasTypographyForTests()
     resetTerminalSessionsForTests()
     resetAttachedTerminalWindowsForTests()
     resetTerminalPinnedChatsForTests()
@@ -1400,6 +1403,38 @@ describe('App', () => {
       expect(px.value).toBe(defaultTerminalFontSizePx)
 
       pane.remove()
+      wrapper.unmount()
+    })
+
+    it.each([true, false])('steps canvas and session text with terminal focus %s', async (terminalFocus) => {
+      const { wrapper, router } = await mountAppWithRouter()
+      await router.replace({ name: 'agents', params: { workspace: 'web-app' }, query: { chat: '7', canvas: '1' } })
+      const { fontSize } = useCanvasTypography()
+      const { px } = useTerminalFont()
+      await flushPromises()
+      const pane = terminalFocus ? focusedPane() : null
+      const press = async (key: string): Promise<void> => {
+        const target = pane ?? window
+        target.dispatchEvent(new KeyboardEvent('keydown', { key, metaKey: true, bubbles: true }))
+        await flushPromises()
+      }
+
+      await press('=')
+      expect(fontSize.value).toBe('large')
+      expect(px.value).toBe(defaultTerminalFontSizePx + 2)
+      await press('+')
+      expect(fontSize.value).toBe('xl')
+      await press('-')
+      expect(fontSize.value).toBe('large')
+      await press('0')
+      expect(fontSize.value).toBe('medium')
+      expect(px.value).toBe(defaultTerminalFontSizePx)
+
+      await router.replace({ query: { chat: '7' } })
+      await press('=')
+      expect(fontSize.value).toBe('medium')
+      expect(px.value).toBe(defaultTerminalFontSizePx + 2)
+      pane?.remove()
       wrapper.unmount()
     })
 

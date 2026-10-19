@@ -51,6 +51,28 @@ describe('useCanvasTypography', () => {
     expect(mocks.SetCanvasLineSpacing).toHaveBeenCalledWith('compact')
   })
 
+  it('steps within the presets and persists the default on reset', async () => {
+    const { stepCanvasFontSize, resetCanvasFontSize, useCanvasTypography } = await import('../useCanvasTypography')
+    const { fontSize } = useCanvasTypography()
+    await settle()
+
+    stepCanvasFontSize(-1)
+    stepCanvasFontSize(-1)
+    expect(fontSize.value).toBe('small')
+    stepCanvasFontSize(1)
+    stepCanvasFontSize(1)
+    stepCanvasFontSize(1)
+    stepCanvasFontSize(1)
+    expect(fontSize.value).toBe('xl')
+    resetCanvasFontSize()
+    expect(fontSize.value).toBe('medium')
+    await settle()
+
+    expect(mocks.SetCanvasFontSize.mock.calls.map(([size]) => size)).toEqual([
+      'small', 'medium', 'large', 'xl', 'medium',
+    ])
+  })
+
   it('falls back from unknown stored values', async () => {
     mocks.AppearanceSettings.mockResolvedValue({ canvasFontSize: 'giant', canvasLineSpacing: 'wide' })
     const { useCanvasTypography } = await import('../useCanvasTypography')

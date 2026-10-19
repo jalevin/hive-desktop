@@ -46,6 +46,7 @@ import { useNewSession } from './composables/useNewSession'
 import { usePopupTerminal } from './composables/usePopupTerminal'
 import { useTasks } from './composables/useTasks'
 import { sessionRepository } from './composables/useTerminalSessions'
+import { resetCanvasFontSize, stepCanvasFontSize } from './composables/useCanvasTypography'
 import { resetTerminalFontSize, stepTerminalFontSize } from './composables/useTerminalFont'
 import {
   closeTerminalPane, closeTerminalWindow, focusTerminalFilter, focusTerminalPane, focusTerminalPaneDirection, focusTerminalTree,
@@ -162,7 +163,7 @@ const session = useFlowsSession()
 // main page.
 const router = useRouter()
 const route = useRoute()
-const { routeChatId, canvasRequested, canvasUnseen, syncCanvasQuery } = useAgentCanvasRoute()
+const { routeChatId, canvasRequested, canvasVisible, canvasUnseen, syncCanvasQuery } = useAgentCanvasRoute()
 const flowsActive = computed(() => route.name === 'flows')
 const devActive = computed(() => devToolsEnabled.value && route.name === 'dev')
 const applicationSettingsActive = computed(() => route.name === 'application-settings')
@@ -1105,9 +1106,18 @@ const runMap: Record<string, () => void | Promise<void>> = {
   'terminal.split-down': () => splitTerminalPane('vertical'),
   'terminal.close-pane': closeTerminalPane,
   'terminal.zoom-pane': zoomTerminalPane,
-  'terminal.text-size-increase': () => stepTerminalFontSize(1),
-  'terminal.text-size-decrease': () => stepTerminalFontSize(-1),
-  'terminal.text-size-reset': resetTerminalFontSize,
+  'terminal.text-size-increase': () => {
+    stepTerminalFontSize(1)
+    if (canvasVisible.value) stepCanvasFontSize(1)
+  },
+  'terminal.text-size-decrease': () => {
+    stepTerminalFontSize(-1)
+    if (canvasVisible.value) stepCanvasFontSize(-1)
+  },
+  'terminal.text-size-reset': () => {
+    resetTerminalFontSize()
+    if (canvasVisible.value) resetCanvasFontSize()
+  },
   'terminal.focus-pane-left': () => focusTerminalPaneDirection('left'),
   'terminal.focus-pane-right': () => focusTerminalPaneDirection('right'),
   'terminal.focus-pane-up': () => focusTerminalPaneDirection('up'),
