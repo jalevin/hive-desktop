@@ -82,8 +82,7 @@ export interface BindableCommand {
   /** Canonical default combos; `[]` = bindable but unbound. */
   defaultCombos: string[]
   /**
-   * Non-macOS defaults for shifted escaping chords that Ctrl+Shift
-   * normalization cannot resolve. Read through defaultCombosFor.
+   * Non-macOS defaults. Read through defaultCombosFor.
    */
   ctrlDefaultCombos?: string[]
   context: CommandContext
@@ -264,7 +263,8 @@ export const commandCatalog: BindableCommand[] = [
     group: 'General',
     keywords: ['terminal', 'shell', 'popup', 'console', 'run', 'command', 'lazygit'],
     icon: IconTerminal,
-    defaultCombos: ['mod+`'],
+    defaultCombos: ['ctrl+`'],
+    ctrlDefaultCombos: ['mod+`'],
     context: 'global',
     piercesPane: true,
   },

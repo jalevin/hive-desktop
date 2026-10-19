@@ -932,6 +932,39 @@ describe('App', () => {
     wrapper.unmount()
   })
 
+  it('opens the popup with Control and leaves native window cycling uncanceled with terminal focus', async () => {
+    Object.defineProperty(navigator, 'userAgent', { configurable: true, value: 'Macintosh' })
+    useKeybindings().addBinding('terminal.popup.toggle', 'ctrl+`')
+    useKeybindings().addBinding('terminal.popup.toggle', 'mod+`')
+    useKeybindings().addBinding('terminal.popup.toggle', 'mod+~')
+    const { wrapper, router } = await mountAppWithRouter()
+    try {
+      await router.push('/terminal/hive-fix-parser')
+      await flushPromises()
+      const pane = document.createElement('textarea')
+      pane.className = 'xterm-helper-textarea'
+      document.body.appendChild(pane)
+      try {
+        const popup = usePopupTerminal()
+        for (const [key, shiftKey] of [['`', false], ['~', true]] as const) {
+          const event = new KeyboardEvent('keydown', { key, shiftKey, metaKey: true, bubbles: true, cancelable: true })
+          pane.dispatchEvent(event)
+          expect(event.defaultPrevented).toBe(false)
+          expect(popup.visible.value).toBe(false)
+        }
+        pane.dispatchEvent(new KeyboardEvent('keydown', { key: '`', ctrlKey: true, bubbles: true }))
+        expect(popup.visible.value).toBe(true)
+        pane.dispatchEvent(new KeyboardEvent('keydown', { key: '`', ctrlKey: true, bubbles: true }))
+        expect(popup.visible.value).toBe(false)
+      } finally {
+        pane.remove()
+      }
+    } finally {
+      wrapper.unmount()
+      Reflect.deleteProperty(navigator, 'userAgent')
+    }
+  })
+
   // A launcher is a line of actions.yml that has to become both a palette row
   // and a chord of its own — this is where those two meet the app.
   it('offers a configured launcher in the palette and opens it on the session it is attached to', async () => {

@@ -28,7 +28,7 @@ import { silenceDeviceReports } from '../lib/terminalReports'
 import { scrolledOffTail } from '../lib/terminalTail'
 import { paneMayAutoFocus } from '../lib/terminalTree'
 import { commandEscapesPane, commandPiercesPane } from '../keybindings/catalog'
-import { comboFromEvent, terminalEscapeCombo, useKeybindings } from './useKeybindings'
+import { comboFromEvent, isNativeWindowCycle, terminalEscapeCombo, useKeybindings } from './useKeybindings'
 import { searchHighlightColors, xtermTheme } from '../lib/terminalTheme'
 import { resizeTerminalPreservingViewport } from '../lib/terminalViewport'
 import { terminalCellMetrics, useTerminalFont } from './useTerminalFont'
@@ -377,6 +377,7 @@ export function useTerminalWindows(slug: string, client: TerminalClient): UseTer
     // grid sized after the first paint mangles the snapshot it just drew.
     term.resize(grid?.cols || unreportedSize().cols, grid?.rows || unreportedSize().rows)
     term.attachCustomKeyEventHandler((event: KeyboardEvent) => {
+      if (isNativeWindowCycle(event)) return false
       if (event.type !== 'keydown') return true
       if (isSearchCombo(event)) {
         openSearch()

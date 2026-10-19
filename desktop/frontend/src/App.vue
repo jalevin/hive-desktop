@@ -55,7 +55,7 @@ import { focusAgentsFilter, focusAgentsList, focusAgentsPane } from './lib/agent
 import { useLaunchers } from './composables/useLaunchers'
 import { useItemSessions } from './composables/useItemSessions'
 import { useWailsEvent } from './composables/useWailsEvent'
-import { comboFromEvent, SEQUENCE_TIMEOUT_MS, terminalEscapeCombo, useKeybindings } from './composables/useKeybindings'
+import { comboFromEvent, isNativeWindowCycle, SEQUENCE_TIMEOUT_MS, terminalEscapeCombo, useKeybindings } from './composables/useKeybindings'
 import { commandById, commandPiercesPane, launcherActionID, launcherCommandID, terminalWindowPosition, type CommandContext } from './keybindings/catalog'
 import { useAppPaletteRows } from './composables/useAppPaletteRows'
 import { useFlowsSession } from './pipeline/composables/useFlowsSession'
@@ -1269,6 +1269,10 @@ function armSequenceTimer(deferredCommandId: string): void {
 watch(paletteOpen, (open) => { if (open) resetSequence() })
 
 function onGlobalKeydown(e: KeyboardEvent): void {
+  if (isNativeWindowCycle(e)) {
+    resetSequence()
+    return
+  }
   // The exceptions to the rule below, which hands a focused terminal every key.
   // Both kinds still answer to their own context, and an overlay suppresses
   // them as it does every global command.
